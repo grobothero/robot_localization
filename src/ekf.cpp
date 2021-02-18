@@ -40,7 +40,6 @@
 #include <sstream>
 #include <vector>
 
-
 namespace RobotLocalization
 {
   Ekf::Ekf(std::vector<double>) :
@@ -162,6 +161,10 @@ namespace RobotLocalization
     kalmanGainSubset.noalias() = pht * hphrInv;
 
     innovationSubset = (measurementSubset - stateSubset);
+
+    if (measurement.topicName_ == "odom1_pose"){
+      residual_ = innovationSubset;
+    }
 
     // Wrap angles in the innovation
     for (size_t i = 0; i < updateSize; ++i)
@@ -324,7 +327,7 @@ namespace RobotLocalization
     zCoeff = -sp * cr;
     double dFz_dP = (xCoeff * xVel + yCoeff * yVel + zCoeff * zVel) * delta +
                     (xCoeff * xAcc + yCoeff * yAcc + zCoeff * zAcc) * oneHalfATSquared;
-    double dFY_dP = (sr * tp * cpi * pitchVel + cr * tp * cpi * yawVel) * delta;
+    double dFY_dP = (sr * tp * cpi * pitchVel - cr * tp * cpi * yawVel) * delta;
 
     // Much of the transfer function Jacobian is identical to the transfer function
     transferFunctionJacobian_ = transferFunction_;
