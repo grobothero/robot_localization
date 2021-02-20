@@ -2,94 +2,60 @@
 Changelog for package robot_localization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.6.9 (2020-12-17)
+2.4.8 (2019-08-08)
 ------------------
-* Fix warning "Failed to meet update rate!" (`#602 <https://github.com/cra-ros-pkg/robot_localization/issues/602>`_)
-* Fix sign error in dFY_dP part of transferFunctionJacobian\_ (`#592 <https://github.com/cra-ros-pkg/robot_localization/issues/592>`_)
-* Fix typo in navsat_transform_node.rst (`#588 <https://github.com/cra-ros-pkg/robot_localization/issues/588>`_)
-* fix issue caused by starting on uneven terrain (`#582 <https://github.com/cra-ros-pkg/robot_localization/issues/582>`_)
-* Local Cartesian Option (`#575 <https://github.com/cra-ros-pkg/robot_localization/issues/575>`_)
-* Fix frame id of imu in differential mode, closes `#482 <https://github.com/cra-ros-pkg/robot_localization/issues/482>`_. (`#522 <https://github.com/cra-ros-pkg/robot_localization/issues/522>`_)
-* navsat_transform diagram to address `#550 <https://github.com/cra-ros-pkg/robot_localization/issues/550>`_ (`#570 <https://github.com/cra-ros-pkg/robot_localization/issues/570>`_)
-* Increasing the minimum CMake version (`#573 <https://github.com/cra-ros-pkg/robot_localization/issues/573>`_)
-* Contributors: Aleksander Bojda, David Jensen, James Baxter, Jeffrey Kane Johnson, Mabel Zhang, Mike, Ronald Ensing, Tom Moore
-
-2.6.8 (2020-06-03)
-------------------
-* Adding conditional build dependencies (`#572 <https://github.com/cra-ros-pkg/robot_localization/issues/572>`_)
-* Contributors: Tom Moore
-
-2.6.7 (2020-06-01)
-------------------
-* Parameterizing transform failure warnings
-* [melodic] Fix Windows build break. (`#557 <https://github.com/cra-ros-pkg/robot_localization/issues/557>`_)
-* Contributors: Sean Yen, Tom Moore, florianspy
-
-2.6.5 (2019-08-08)
-------------------
-* fix: wall time used when `use_sim_time` is true
-* Created service for converting to / from lat long
-* Fix bug with tf_prefix
 * Adding new contribution to doc
 * Add missing undocumented params
 * Update wiki location
-* Contributors: Andrew Grindstaff, Axel Mousset, Charles Brian Quinn, Oswin So, Tom Moore
+* Fix bug with tf_prefix
+* Contributors: Andrew Grindstaff, Charles Brian Quinn, Tom Moore
 
-2.6.4 (2019-02-15)
+2.4.7 (2019-02-15)
 ------------------
-* Meridian convergence adjustment added to navsat_transform.
-* Documentation changes
+* Documentation fixes
 * Add broadcast_utm_transform_as_parent_frame
 * Enable build optimisations if no build type configured.
+* Meridian convergence adjustment added to navsat_transform.
 * Contributors: G.A. vd. Hoorn, Pavlo Kolomiiets, diasdm
 
-2.6.3 (2019-01-14)
+2.4.6 (2019-01-14)
 ------------------
-* Rename odomBaseLinkTrans to baseLinkOdomTrans
-  Adhere to the naming convention <fromFrame><toFrame>Trans used for worldBaseLinkTrans and mapOdomTrans.
-* Add const& to catch values to prevent the error:  catching polymorphic type ‘class tf2::TransformException’ by value
-  And ZoneNumber by 0x3fU to prevent error: directive output may be truncated writing between 1 and 11 bytes into a region of size 4
-* Enabling the user to override the output child_frame_id
+* Renaming odom to base link trans
 * Fixing Euler body-to-world transformations
-* Whitespace
-* fixing no datum service in melodic
-* Contributors: Alexis schad, Matthew Jones, Tom Moore, thallerod
-
-2.6.2 (2018-10-25)
-------------------
-* Fixing tests
+* Enabling the user to override the output child_frame_id
 * Contributors: Tom Moore
 
-2.6.1 (2018-10-25)
+2.4.5 (2018-10-25)
+------------------
+* Linting
+* Contributors: Tom Moore
+
+2.4.4 (2018-10-25)
 ------------------
 * Adding more output for measurement history failures
 * Adding filter processing toggle service
 * Waiting for valid ROS time before starting navsat_transform_node
 * Contributors: Tom Moore, stevemacenski
 
-2.6.0 (2018-07-27)
-------------------
-* Moving to C++14, adding error flags, and fixing all warnings
-* Contributors: Tom Moore
-
-2.5.2 (2018-04-11)
+2.4.3 (2018-04-11)
 ------------------
 * Add published accel topic to documentation
-* adding log statements for nans in the invertable matrix
+* Adding log statements for nans in the invertable matrix
 * Fixing issue with potential seg fault
 * Contributors: Oleg Kalachev, Tom Moore, stevemacenski
 
-2.5.1 (2018-01-03)
+2.4.2 (2018-01-03)
 ------------------
 * Fixing CMakeLists
 * Contributors: Tom Moore
 
-2.5.0 (2017-12-15)
+2.4.1 (2017-12-15)
 ------------------
 * Fixing datum precision
-* Fixing timing variable
 * Fixing state history reversion
+* Silencing unnecessary errors and warnings
 * Fixing critical bug with dynamic process noise covariance
+* Some trivial changes to lessen the differences to lunar
 * Fix typo in reading Mahalanobis thresholds.
 * Zero out rotation in GPS to base_link transform
 * Update xmlrpcpp includes for Indigo support
@@ -99,10 +65,9 @@ Changelog for package robot_localization
 * Add std_srvs dependency
 * Add enabling service
 * Ensure all raw sensor input orientations are normalized even if messages are not
-* Install params directory.
+* Install params directory
 * Add robot localization estimator
-* Adding nodelet support
-* Contributors: Jacob Perron, Jacob Seibert, Jiri Hubacek, Mike Purvis, Miquel Massot, Pavlo Kolomiiets, Rein Appeldoorn, Rokus Ottervanger, Simon Gene Gottlieb, Tom Moore, stevemacenski
+* Contributors: Jacob Perron, Jacob Seibert, Jiri Hubacek, Mike Purvis, Miquel Massot, Pavlo Kolomiiets, Rein Appeldoorn, Rokus Ottervanger, Tom Moore, stevemacenski
 
 2.4.0 (2017-06-12)
 ------------------
