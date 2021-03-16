@@ -53,6 +53,7 @@ add_service_files(
     SetDatum.srv
     SetPose.srv
     ToggleFilterProcessing.srv
+    para_tuning.srv
 )
 
 generate_messages(

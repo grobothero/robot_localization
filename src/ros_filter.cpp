@@ -589,6 +589,30 @@ namespace RobotLocalization
 
         // This will call predict and, if necessary, correct
         filter_.processMeasurement(*(measurement.get()));
+        // If enough samples are collected and we intend to perform auto-tuning
+        if(filter_.getFlagStatus() && filter_.getParasAutoTuning())
+        {
+            //Setup the service instance
+            //The instance contains the error and the parameters we want to tune
+            robot_localization::para_tuning para_tuning_srv;
+            para_tuning_srv.request.avr_error = filter_.getAvrError();
+            Eigen::MatrixXd paras_tmp = filter_.getProcessNoiseCovariance();
+            para_tuning_srv.request.current_paras[0] = paras_tmp(0, 0);
+            para_tuning_srv.request.current_paras[1] = paras_tmp(1, 1);
+            para_tuning_srv.request.current_paras[2] = paras_tmp(5, 5);
+            if (para_tuningSrv_.call(para_tuning_srv))
+            {
+              //Print the optimized parameters and set them into the process noise covariance matrix
+              ROS_INFO("The returned paras are [%f, %f, %f]", para_tuning_srv.response.next_paras[0], para_tuning_srv.response.next_paras[1], para_tuning_srv.response.next_paras[2]);
+              filter_.setProcessNoiseCovariance(para_tuning_srv.response.next_paras[0], para_tuning_srv.response.next_paras[1], para_tuning_srv.response.next_paras[2]);
+            }
+            else
+            {
+              ROS_ERROR("Failed to call service");
+            }
+            filter_.setFlagStatus(false);
+        }
+        
 
         // Store old states and measurements if we're smoothing
         if (smoothLaggedData_)
@@ -905,6 +929,10 @@ namespace RobotLocalization
     nhLocal_.param("dynamic_process_noise_covariance", dynamicProcessNoiseCovariance, false);
     filter_.setUseDynamicProcessNoiseCovariance(dynamicProcessNoiseCovariance);
 
+    bool paras_auto_tuning = false;
+    nhLocal_.param("auto_tuning", paras_auto_tuning, false);
+    filter_.setParasAutoTuning(paras_auto_tuning);
+
     std::vector<double> initialState(STATE_SIZE, 0.0);
     if (nhLocal_.getParam("initial_state", initialState))
     {
@@ -966,6 +994,8 @@ namespace RobotLocalization
     // Create a service for toggling processing new measurements while still publishing
     toggleFilterProcessingSrv_ =
       nhLocal_.advertiseService("toggle", &RosFilter<T>::toggleFilterProcessingCallback, this);
+    para_tuningSrv_ = nh_.serviceClient<robot_localization::para_tuning>("parameters_tuning");
+    
 
     // Init the last measurement time so we don't get a huge initial delta
     filter_.setLastMeasurementTime(ros::Time::now().toSec());
@@ -1805,7 +1835,6 @@ namespace RobotLocalization
 
     // Publisher
     ros::Publisher positionPub = nh_.advertise<nav_msgs::Odometry>(filtered_Topicname_, 20);
-    ros::Publisher residualPub = nh_.advertise<geometry_msgs::Pose>("residual_info", 10);
     tf2_ros::TransformBroadcaster worldTransformBroadcaster;
 
     // Optional acceleration publisher
@@ -1856,21 +1885,9 @@ namespace RobotLocalization
 
       // Get latest state and publish it
       nav_msgs::Odometry filteredPosition;
-      geometry_msgs::Pose residual_pose;
 
       if (getFilteredOdometryMessage(filteredPosition))
       {
-        const Eigen::VectorXd &residual_ = filter_.getResidual();
-        tf2::Quaternion residual_q;
-        residual_q.setRPY(residual_(3), residual_(4), residual_(5));
-        residual_pose.position.x = residual_(0);
-        residual_pose.position.y = residual_(1);
-        residual_pose.position.z = residual_(2);
-        residual_pose.orientation.x = residual_q.x();
-        residual_pose.orientation.y = residual_q.y();
-        residual_pose.orientation.z = residual_q.z();
-        residual_pose.orientation.w = residual_q.w();
-
         worldBaseLinkTransMsg_.header.stamp = filteredPosition.header.stamp + tfTimeOffset_;
         worldBaseLinkTransMsg_.header.frame_id = filteredPosition.header.frame_id;
         worldBaseLinkTransMsg_.child_frame_id = filteredPosition.child_frame_id;
@@ -1958,7 +1975,6 @@ namespace RobotLocalization
 
         // Fire off the position and the transform
         positionPub.publish(filteredPosition);
-        residualPub.publish(residual_pose);
 
         if (printDiagnostics_)
         {

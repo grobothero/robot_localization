@@ -162,10 +162,6 @@ namespace RobotLocalization
 
     innovationSubset = (measurementSubset - stateSubset);
 
-    if (measurement.topicName_ == "odom1_pose"){
-      residual_ = innovationSubset;
-    }
-
     // Wrap angles in the innovation
     for (size_t i = 0; i < updateSize; ++i)
     {
@@ -188,6 +184,24 @@ namespace RobotLocalization
     // (2) Check Mahalanobis distance between mapped measurement and state.
     if (checkMahalanobisThreshold(innovationSubset, hphrInv, measurement.mahalanobisThresh_))
     {
+
+      double NIS_error = innovationSubset.dot(hphrInv * innovationSubset);
+
+      // Assume lidar odom is the most accurate sensor source
+      // The optimzation goal is to make the ekf odometry close to lidar odometry
+      if (measurement.topicName_ == "odom1_pose"){
+        count_ += 1;
+        S_inv = hphrInv;
+        error_tmp += NIS_error;
+        // More count leads to less noisy samples but also longer time
+        if(count_ == 1000){
+          avr_nis_error = error_tmp / count_;
+          count_ = 0;
+          error_tmp = 0.0;
+          flag_ = true;
+        }
+      }
+
       // (3) Apply the gain to the difference between the state and measurement: x = x + K(z - Hx)
       state_.noalias() += kalmanGainSubset * innovationSubset;
 

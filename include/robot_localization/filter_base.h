@@ -226,6 +226,7 @@ class FilterBase
     //! @return A constant reference to the process noise covariance
     //!
     const Eigen::MatrixXd& getProcessNoiseCovariance();
+    void setProcessNoiseCovariance(const double pose_x, const double pose_y, const double pose_z);
 
     //! @brief Gets the sensor timeout value (in seconds)
     //!
@@ -238,7 +239,10 @@ class FilterBase
     //! @return A constant reference to the current state
     //!
     const Eigen::VectorXd& getState();
-    const Eigen::VectorXd& getResidual();
+    const Eigen::MatrixXd& getS_inv();
+    const bool& getFlagStatus();
+    const double& getAvrError();
+    void setFlagStatus(const bool status_);
 
     //! @brief Carries out the predict step in the predict/update cycle.
     //! Projects the state and error matrices forward using a model of
@@ -292,6 +296,8 @@ class FilterBase
     //! @param[in] dynamicProcessNoiseCovariance - Whether or not to compute dynamic process noise covariance matrices
     //!
     void setUseDynamicProcessNoiseCovariance(const bool dynamicProcessNoiseCovariance);
+    void setParasAutoTuning(const bool paras_auto_tuning);
+    const bool getParasAutoTuning();
 
     //! @brief Manually sets the filter's estimate error covariance
     //!
@@ -493,7 +499,11 @@ class FilterBase
     //! filter. The values in this vector are what get reported by the node.
     //!
     Eigen::VectorXd state_;
-    Eigen::VectorXd residual_;
+    Eigen::MatrixXd S_inv;
+    int count_;
+    double avr_nis_error;
+    double error_tmp;
+    bool flag_;
 
     //! @brief The Kalman filter transfer function
     //!
@@ -528,6 +538,7 @@ class FilterBase
     //! dynamic process noise covariance matrix
     //!
     bool useDynamicProcessNoiseCovariance_;
+    bool paras_auto_tuning_;
 
   private:
     //! @brief Whether or not the filter is in debug mode

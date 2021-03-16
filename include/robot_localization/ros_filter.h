@@ -39,6 +39,7 @@
 
 #include <robot_localization/SetPose.h>
 #include <robot_localization/ToggleFilterProcessing.h>
+#include <robot_localization/para_tuning.h>
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -593,6 +594,7 @@ template<class T> class RosFilter
     //! Uses a robot_localization ToggleFilterProcessing service.
     //!
     ros::ServiceServer toggleFilterProcessingSrv_;
+    ros::ServiceClient para_tuningSrv_;
 
     //! @brief Contains the state vector variable names in string format
     //!

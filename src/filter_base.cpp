@@ -52,7 +52,8 @@ namespace RobotLocalization
     dynamicProcessNoiseCovariance_(STATE_SIZE, STATE_SIZE),
     latestControlTime_(0.0),
     state_(STATE_SIZE),
-    residual_(3),
+    flag_(false),
+    error_tmp(0.0),
     predictedState_(STATE_SIZE),
     transferFunction_(STATE_SIZE, STATE_SIZE),
     transferFunctionJacobian_(STATE_SIZE, STATE_SIZE),
@@ -63,7 +64,8 @@ namespace RobotLocalization
     debug_(false),
     debugStream_(NULL),
     useControl_(false),
-    useDynamicProcessNoiseCovariance_(false)
+    useDynamicProcessNoiseCovariance_(false),
+    paras_auto_tuning_(false)
   {
     reset();
   }
@@ -78,7 +80,11 @@ namespace RobotLocalization
 
     // Clear the state and predicted state
     state_.setZero();
-    residual_.setZero();
+    S_inv.setZero();
+    count_ = 0;
+    avr_nis_error = 0.0;
+    error_tmp = 0.0;
+    flag_ = false;
     predictedState_.setZero();
     controlAcceleration_.setZero();
 
@@ -190,6 +196,13 @@ namespace RobotLocalization
     return processNoiseCovariance_;
   }
 
+  void FilterBase::setProcessNoiseCovariance(const double pose_x, const double pose_y, const double pose_z)
+  {
+      processNoiseCovariance_(0, 0) = pose_x;
+      processNoiseCovariance_(1, 1) = pose_y;
+      processNoiseCovariance_(5, 5) = pose_z;
+  }
+
   double FilterBase::getSensorTimeout()
   {
     return sensorTimeout_;
@@ -200,9 +213,24 @@ namespace RobotLocalization
     return state_;
   }
 
-  const Eigen::VectorXd& FilterBase::getResidual()
+  const Eigen::MatrixXd& FilterBase::getS_inv()
   {
-    return residual_;
+    return S_inv;
+  }
+
+  const bool& FilterBase::getFlagStatus()
+  {
+    return flag_;
+  }
+
+  void FilterBase::setFlagStatus(const bool status_)
+  {
+    flag_ = status_;
+  }
+
+  const double& FilterBase::getAvrError()
+  {
+    return avr_nis_error;
   }
 
   void FilterBase::processMeasurement(const Measurement &measurement)
@@ -311,6 +339,14 @@ namespace RobotLocalization
   void FilterBase::setUseDynamicProcessNoiseCovariance(const bool useDynamicProcessNoiseCovariance)
   {
     useDynamicProcessNoiseCovariance_ = useDynamicProcessNoiseCovariance;
+  }
+
+  void FilterBase::setParasAutoTuning(const bool paras_auto_tuning){
+    paras_auto_tuning_ = paras_auto_tuning;
+  }
+
+  const bool FilterBase::getParasAutoTuning(){
+    return paras_auto_tuning_;
   }
 
   void FilterBase::setEstimateErrorCovariance(const Eigen::MatrixXd &estimateErrorCovariance)
